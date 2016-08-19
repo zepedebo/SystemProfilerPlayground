@@ -2,125 +2,109 @@
 
 import Cocoa
 
-let lsTask = Task()
-let wcTask = Task()
 
-wcTask.launchPath = "/usr/bin/wc"
-lsTask.launchPath = "/bin/ls"
+// Basic task demo
+let lsTask = Process()
+let wcTask = Process()
 let lsOutPipe = Pipe()
 let wcOutPipe = Pipe()
+
+wcTask.launchPath = "/usr/bin/wc"
+wcTask.arguments = ["-l"]
+lsTask.launchPath = "/bin/ls"
+lsTask.arguments = ["/Users/steveg"]
+
 lsTask.standardOutput = lsOutPipe
 wcTask.standardInput = lsOutPipe
-wcTask.arguments = ["-l"]
 wcTask.standardOutput = wcOutPipe
-lsTask.arguments = ["/Users/steveg"]
+
+// NOTE: launch throws an exception on bad input but it is an Objective-C exception. Swift won't catch it
+// see http://stackoverflow.com/questions/32758811/catching-nsexception-in-swift
 lsTask.launch()
 wcTask.launch()
+
+
 lsTask.waitUntilExit()
 wcTask.waitUntilExit()
+
+print("ls terminated with \(lsTask.terminationStatus), wc terminated with \(wcTask.terminationStatus)")
 
 let data = wcOutPipe.fileHandleForReading.readDataToEndOfFile()
 let stringData = String(data: data, encoding: String.Encoding.utf8)
 
 print("File count = \(stringData?.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines))")
 
+// Dealing with some results
 let i = Int("  23".trimmingCharacters(in: CharacterSet.whitespacesAndNewlines))
 let f = Float("10.12")
 
-let firstTask = Task()
+// Collection.map() demo
+let firstTask = Process()
 let stdout = Pipe()
 firstTask.standardOutput = stdout
 firstTask.launchPath = "/bin/ls"
 firstTask.currentDirectoryPath = "/Users/steveg"
 firstTask.launch()
 firstTask.waitUntilExit()
-print("\(firstTask.terminationStatus)")
+
 let lsData = stdout.fileHandleForReading.readDataToEndOfFile()
 if let lsText = String(data: lsData, encoding: String.Encoding.utf8) {
-print("\(lsText)")
-let contents = lsText.components(separatedBy: "\n")
+    print("\(lsText)")
+    let contents = lsText.components(separatedBy: "\n")
     let fullPaths = contents.map(){(a) -> String in firstTask.currentDirectoryPath+"/"+a}
+    // let fullPaths = contents.map(){firstTask.currentDirectoryPath+"/"+$0}
+
     print("\(fullPaths)")
 }
 
 
+func toNSArray(v: Any?) -> NSArray? {
+    return v as? NSArray
+}
+
+func toNSDictionary(v: Any?) ->NSDictionary? {
+    return v as? NSDictionary
+}
+
 
 
 func getItemsFromSystemProfiler(dataTypeString: String) -> Array<NSDictionary>? {
-    let task = Task()
+    let task = Process()
     
     var systemProfilerInfo: Array<NSDictionary>? = nil
     
-        task.launchPath = "/usr/sbin/system_profiler"
-        task.arguments = ["-xml", dataTypeString]
-        
-        
-        let pipe = Pipe()
-        task.standardOutput = pipe
-        
-        task.launch()
-        
-        let data = pipe.fileHandleForReading.readDataToEndOfFile()
-        
-        
-        //let dict : AnyObject!  = try? PropertyListSerialization.propertyList(data, options: PropertyListSerialization.MutabilityOptions.immutable, format: nil)
-        let dict: AnyObject! = try? PropertyListSerialization.propertyList(from: data, options: [], format: nil)
-        
-        
-        let a = dict as? NSArray
-        let d = a?[0] as? NSDictionary
+    task.launchPath = "/usr/sbin/system_profiler"
+    task.arguments = ["-xml", dataTypeString]
     
-    if let q = (dict as? NSArray)?[0] as? NSDictionary {
-        
+    
+    let pipe = Pipe()
+    task.standardOutput = pipe
+    
+    task.launch()
+    
+    let data = pipe.fileHandleForReading.readDataToEndOfFile()
+    
+    
+    let dict: Any! = try? PropertyListSerialization.propertyList(from: data, options: [], format: nil)
+    
+    
+    guard let a = dict as? NSArray else {
+        return nil
     }
     
-        if let n = d?["_items"] as? NSArray {
-            systemProfilerInfo = (n as! Array<NSDictionary>) as Array<NSDictionary>?
-        } else {
-            systemProfilerInfo = nil
-        }
+    guard let d = a[0] as? NSDictionary else {
+        return nil
+    }
+    
+
+    if let n = d["_items"] as? NSArray {
+        systemProfilerInfo = (n as! Array<NSDictionary>) as Array<NSDictionary>?
+    } else {
+        systemProfilerInfo = nil
+    }
     return systemProfilerInfo
 }
 
-/*
-extension Array {
-    public func pmap<T>(transform: ((Element) -> T)) -> [T] {
-        guard !self.isEmpty else {
-            return []
-        }
-        
-        var result: [(Int, [T])] = []
-        
-        let group = DispatchGroup()
-        let lock = DispatchQueue(label: "pmap queue for result") // dispatch_queue_create("pmap queue for result", DISPATCH_QUEUE_SERIAL)
-        let possibleStep = (self.count / ProcessInfo.processInfo.activeProcessorCount)
-        
-        let step: Int = possibleStep == 0 ? 1 : possibleStep // step can never be 0
-        
-        var stepIndex = 0
-        while stepIndex * step < self.count {
-            let capturedStepIndex = stepIndex
-            
-            var stepResult: [T] = []
-            dispatch_group_async(group, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) {
-                for i in (capturedStepIndex * step)..<((capturedStepIndex + 1) * step) {
-                    if i < self.count {
-                        let mappedElement = transform(self[i])
-                        stepResult += [mappedElement]
-                    }
-                }
-                
-                dispatch_group_async(group, lock) {
-                    result += [(capturedStepIndex, stepResult)]
-                }
-            }
-            stepIndex += 1
-        }
-        
-        dispatch_group_wait(group, DISPATCH_TIME_FOREVER)
-        
-        return result.sort { $0.0 < $1.0 }.flatMap { $0.1 }
-    }
-}
-*/
+// NSArray to Array is toll free. NSDictionary to Dictionary is not but that's OK. They work the same.
+let d = getItemsFromSystemProfiler(dataTypeString: "SPHardwareDataType")
 
