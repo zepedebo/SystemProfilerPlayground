@@ -109,23 +109,23 @@ func getItemsFromSystemProfiler(dataTypeString: String) -> Array<NSDictionary>? 
 let d = getItemsFromSystemProfiler(dataTypeString: "SPApplicationsDataType")
 print("\(d?.count)")
 
-let fortimeAtStart = Date()
+//let fortimeAtStart = Date()
 
-var fora = [String]()
-for swp in d! {
-    if let path = swp["path"] {
-        let fullpath = "\(path)/Contents/Info.plist"
-        if case let info as String = NSDictionary(contentsOfFile: fullpath)?["CFBundleIdentifier"] {
-            fora.append(info)
-//            print("\(info)")
-        } else {
-            print(fullpath)
-            fora.append("")
-        }
-    }
-}
- let forelapsedtime = Date().timeIntervalSince(fortimeAtStart)
- print("\(forelapsedtime)")
+//var fora = [String]()
+//for swp in d! {
+//    if let path = swp["path"] {
+//        let fullpath = "\(path)/Contents/Info.plist"
+//        if case let info as String = NSDictionary(contentsOfFile: fullpath)?["CFBundleIdentifier"] {
+//            fora.append(info)
+////            print("\(info)")
+//        } else {
+//            print(fullpath)
+//            fora.append("")
+//        }
+//    }
+//}
+// let forelapsedtime = Date().timeIntervalSince(fortimeAtStart)
+// print("\(forelapsedtime)")
 
 
 let timeAtStart = Date()
@@ -142,12 +142,12 @@ let mapa = d!.map{(swp) -> String in
 }
 let elapsedtime = Date().timeIntervalSince(timeAtStart)
 
-if mapa.count != fora.count {
-    print("not equal \(mapa.count), \(fora.count)")
-}
-if mapa == fora {
-    print("equal")
-}
+//if mapa.count != fora.count {
+//    print("not equal \(mapa.count), \(fora.count)")
+//}
+//if mapa == fora {
+//    print("equal")
+//}
 
 
 print(mapa.count)
@@ -165,8 +165,11 @@ let r = id.reduce([String: Int]()){m, k in
 
 // Tuples as ad hoc structures
 
-let t = ("add", op: {$0 + 1})
+let t = (name: "add", op: {$0 + 1})
 t.op(5)
+
+var x = 10, y = 20
+(x,y) = (y,x)
 
 let a = [Int](1...100)
 func square(_ a: Int) -> Int {return a * a;}
