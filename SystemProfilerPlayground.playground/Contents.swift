@@ -49,12 +49,12 @@ firstTask.waitUntilExit()
 
 let lsData = stdout.fileHandleForReading.readDataToEndOfFile()
 if let lsText = String(data: lsData, encoding: String.Encoding.utf8) {
-    print("\(lsText)")
+//    print("\(lsText)")
     let contents = lsText.components(separatedBy: "\n")
     let fullPaths = contents.map(){(a) -> String in firstTask.currentDirectoryPath+"/"+a}
     // let fullPaths = contents.map(){firstTask.currentDirectoryPath+"/"+$0}
 
-    print("\(fullPaths)")
+//    print("\(fullPaths)")
 }
 
 
@@ -106,5 +106,64 @@ func getItemsFromSystemProfiler(dataTypeString: String) -> Array<NSDictionary>? 
 }
 
 // NSArray to Array is toll free. NSDictionary to Dictionary is not but that's OK. They work the same.
-let d = getItemsFromSystemProfiler(dataTypeString: "SPHardwareDataType")
+let d = getItemsFromSystemProfiler(dataTypeString: "SPApplicationsDataType")
+print("\(d?.count)")
 
+let fortimeAtStart = Date()
+
+var fora = [String]()
+for swp in d! {
+    if let path = swp["path"] {
+        let fullpath = "\(path)/Contents/Info.plist"
+        if case let info as String = NSDictionary(contentsOfFile: fullpath)?["CFBundleIdentifier"] {
+            fora.append(info)
+//            print("\(info)")
+        } else {
+            print(fullpath)
+            fora.append("")
+        }
+    }
+}
+ let forelapsedtime = Date().timeIntervalSince(fortimeAtStart)
+ print("\(forelapsedtime)")
+
+
+let timeAtStart = Date()
+let mapa = d!.map{(swp) -> String in
+    if let path = swp["path"] {
+        let fullpath = "\(path)/Contents/Info.plist"
+        if let info = NSDictionary(contentsOfFile: fullpath)?["CFBundleIdentifier"] {
+//            print("\(info)")
+            return   info as! String
+        }
+        
+    }
+    return ""
+}
+let elapsedtime = Date().timeIntervalSince(timeAtStart)
+
+if mapa.count != fora.count {
+    print("not equal \(mapa.count), \(fora.count)")
+}
+if mapa == fora {
+    print("equal")
+}
+
+
+print(mapa.count)
+print("\(elapsedtime)")
+
+let id = ["one": 1, "two": 2, "three": 3]
+
+let r = id.reduce([String: Int]()){m, k in
+    
+    var result = m
+    result[k.key] = k.value + 1
+    return result
+}
+
+
+// Tuples as ad hoc structures
+
+let t = ("add", op: {$0 + 1})
+t.op(5)
