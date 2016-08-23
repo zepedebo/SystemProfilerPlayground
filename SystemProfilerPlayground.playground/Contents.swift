@@ -70,32 +70,32 @@ func toNSDictionary(v: Any?) ->NSDictionary? {
 
 func getItemsFromSystemProfiler(dataTypeString: String) -> Array<NSDictionary>? {
     let task = Process()
-    
+
     var systemProfilerInfo: Array<NSDictionary>? = nil
-    
+
     task.launchPath = "/usr/sbin/system_profiler"
     task.arguments = ["-xml", dataTypeString]
-    
-    
+
+
     let pipe = Pipe()
     task.standardOutput = pipe
-    
+
     task.launch()
-    
+
     let data = pipe.fileHandleForReading.readDataToEndOfFile()
-    
-    
+
+
     let dict: Any! = try? PropertyListSerialization.propertyList(from: data, options: [], format: nil)
-    
-    
+
+
     guard let a = dict as? NSArray else {
         return nil
     }
-    
+
     guard let d = a[0] as? NSDictionary else {
         return nil
     }
-    
+
 
     if let n = d["_items"] as? NSArray {
         systemProfilerInfo = (n as! Array<NSDictionary>) as Array<NSDictionary>?
@@ -136,7 +136,7 @@ let mapa = d!.map{(swp) -> String in
 //            print("\(info)")
             return   info as! String
         }
-        
+
     }
     return ""
 }
@@ -156,7 +156,7 @@ print("\(elapsedtime)")
 let id = ["one": 1, "two": 2, "three": 3]
 
 let r = id.reduce([String: Int]()){m, k in
-    
+
     var result = m
     result[k.key] = k.value + 1
     return result
@@ -167,3 +167,16 @@ let r = id.reduce([String: Int]()){m, k in
 
 let t = ("add", op: {$0 + 1})
 t.op(5)
+
+let a = [Int](1...100)
+func square(_ a: Int) -> Int {return a * a;}
+let m = square( 2)
+let s = a.map(square).filter(){($0 & 1) == 0}.reduce(0){$0+$1}
+print("\(s)")
+
+let so: Int? = Int("100s")
+if case .some(let x) = so {
+    print(x)
+} else {
+    print("nan")
+}
