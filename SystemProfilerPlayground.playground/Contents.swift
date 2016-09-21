@@ -77,32 +77,32 @@ func toNSDictionary(v: Any?) ->NSDictionary? {
 
 func getItemsFromSystemProfiler(dataTypeString: String) -> Array<NSDictionary>? {
     let task = Process()
-    
+
     var systemProfilerInfo: Array<NSDictionary>? = nil
-    
+
     task.launchPath = "/usr/sbin/system_profiler"
     task.arguments = ["-xml", dataTypeString]
-    
-    
+
+
     let pipe = Pipe()
     task.standardOutput = pipe
-    
+
     task.launch()
-    
+
     let data = pipe.fileHandleForReading.readDataToEndOfFile()
-    
-    
+
+
     let dict: Any! = try? PropertyListSerialization.propertyList(from: data, options: [], format: nil)
-    
-    
+
+
     guard let a = dict as? NSArray else {
         return nil
     }
-    
+
     guard let d = a[0] as? NSDictionary else {
         return nil
     }
-    
+
 
     if let n = d["_items"] as? NSArray {
         systemProfilerInfo = (n as! Array<NSDictionary>) as Array<NSDictionary>?
@@ -127,6 +127,23 @@ for n in 0..<d!.count {
     }
 }
 }
+//let fortimeAtStart = Date()
+
+//var fora = [String]()
+//for swp in d! {
+//    if let path = swp["path"] {
+//        let fullpath = "\(path)/Contents/Info.plist"
+//        if case let info as String = NSDictionary(contentsOfFile: fullpath)?["CFBundleIdentifier"] {
+//            fora.append(info)
+////            print("\(info)")
+//        } else {
+//            print(fullpath)
+//            fora.append("")
+//        }
+//    }
+//}
+// let forelapsedtime = Date().timeIntervalSince(fortimeAtStart)
+// print("\(forelapsedtime)")
 
 timeMe(label: "Enumerated for loop"){
     //for swp in d! {
@@ -151,18 +168,18 @@ timeMe(label: "Map") {mapa = d!.map{(swp) -> String in
 //            print("\(info)")
             return   info as! String
         }
-        
+
     }
     return ""
 }
 }
 
-if mapa.count != fora.count {
-    print("not equal \(mapa.count), \(fora.count)")
-}
-if mapa == fora {
-    print("equal")
-}
+//if mapa.count != fora.count {
+//    print("not equal \(mapa.count), \(fora.count)")
+//}
+//if mapa == fora {
+//    print("equal")
+//}
 
 
 print(mapa.count)
@@ -170,7 +187,7 @@ print(mapa.count)
 let id = ["one": 1, "two": 2, "three": 3]
 
 let r = id.reduce([String: Int]()){m, k in
-    
+
     var result = m
     result[k.key] = k.value + 1
     return result
@@ -179,5 +196,21 @@ let r = id.reduce([String: Int]()){m, k in
 
 // Tuples as ad hoc structures
 
-let t = ("add", op: {$0 + 1})
+let t = (name: "add", op: {$0 + 1})
 t.op(5)
+
+var x = 10, y = 20
+(x,y) = (y,x)
+
+let a = [Int](1...100)
+func square(_ a: Int) -> Int {return a * a;}
+let m = square( 2)
+let s = a.map(square).filter(){($0 & 1) == 0}.reduce(0){$0+$1}
+print("\(s)")
+
+let so: Int? = Int("100s")
+if case .some(let x) = so {
+    print(x)
+} else {
+    print("nan")
+}
