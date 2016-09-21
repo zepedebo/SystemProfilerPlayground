@@ -2,6 +2,13 @@
 
 import Cocoa
 
+func timeMe(label: String, code :(Void) -> Void ) {
+    let fortimeAtStart = Date()
+    code()
+    let forelapsedtime = Date().timeIntervalSince(fortimeAtStart)
+    print("\(label): \(forelapsedtime)")
+
+}
 
 // Basic task demo
 let lsTask = Process()
@@ -109,27 +116,35 @@ func getItemsFromSystemProfiler(dataTypeString: String) -> Array<NSDictionary>? 
 let d = getItemsFromSystemProfiler(dataTypeString: "SPApplicationsDataType")
 print("\(d?.count)")
 
-let fortimeAtStart = Date()
+var fora = [String](repeating: "", count: d!.count)
 
-var fora = [String]()
-for swp in d! {
-    if let path = swp["path"] {
+timeMe(label: "Traditional for loop"){
+//for swp in d! {
+for n in 0..<d!.count {
+    if let path = d?[n]["path"] {
         let fullpath = "\(path)/Contents/Info.plist"
-        if case let info as String = NSDictionary(contentsOfFile: fullpath)?["CFBundleIdentifier"] {
-            fora.append(info)
-//            print("\(info)")
-        } else {
-            print(fullpath)
-            fora.append("")
+        NSDictionary(contentsOfFile: fullpath)?["CFBundleIdentifier"]  ?? ""
+    }
+}
+}
+
+timeMe(label: "Enumerated for loop"){
+    //for swp in d! {
+    for (n, path) in (d?.enumerated())! {
+        if let path = d?[n]["path"] {
+            let fullpath = "\(path)/Contents/Info.plist"
+            if case let info as String = NSDictionary(contentsOfFile: fullpath)?["CFBundleIdentifier"] {
+                fora[n] = info
+                //            print("\(info)")
+            } else {
+                fora[n] = ""
+            }
         }
     }
 }
- let forelapsedtime = Date().timeIntervalSince(fortimeAtStart)
- print("\(forelapsedtime)")
 
-
-let timeAtStart = Date()
-let mapa = d!.map{(swp) -> String in
+var mapa: [String] = []
+timeMe(label: "Map") {mapa = d!.map{(swp) -> String in
     if let path = swp["path"] {
         let fullpath = "\(path)/Contents/Info.plist"
         if let info = NSDictionary(contentsOfFile: fullpath)?["CFBundleIdentifier"] {
@@ -140,7 +155,7 @@ let mapa = d!.map{(swp) -> String in
     }
     return ""
 }
-let elapsedtime = Date().timeIntervalSince(timeAtStart)
+}
 
 if mapa.count != fora.count {
     print("not equal \(mapa.count), \(fora.count)")
@@ -151,7 +166,6 @@ if mapa == fora {
 
 
 print(mapa.count)
-print("\(elapsedtime)")
 
 let id = ["one": 1, "two": 2, "three": 3]
 
