@@ -2,56 +2,6 @@
 
 import Cocoa
 
-func timeMe(label: String, code :(Void) -> Void ) {
-    let fortimeAtStart = Date()
-    code()
-    let forelapsedtime = Date().timeIntervalSince(fortimeAtStart)
-    print("\(label): \(forelapsedtime)")
-
-}
-
-extension Array {
-    public func pmap<T>(transform: @escaping ((Element) -> T)) -> [T] {
-        guard !self.isEmpty else {
-            return []
-        }
-        
-        var result: [(Int, [T])] = []
-        
-        let group = DispatchGroup()
-        let lock = DispatchQueue(label:"pmap queue for result" )// dispatch_queue_create("pmap queue for result", DISPATCH_QUEUE_SERIAL)
-        
-        let potentialStep = self.count / ProcessInfo.processInfo.activeProcessorCount
-        let step: Int = (potentialStep > 1) ? potentialStep : 1// step can never be 0
-        
-        //        for var stepIndex = 0; stepIndex * step < self.count; stepIndex += 1 {
-        var stepIndex = 0
-        while stepIndex * step < self.count {
-            let capturedStepIndex = stepIndex
-            
-            var stepResult: [T] = []
-            DispatchQueue.global().async(group: group) {
-                for i in (capturedStepIndex * step)..<((capturedStepIndex + 1) * step) {
-                    if i < self.count {
-                        let mappedElement = transform(self[i])
-                        stepResult += [mappedElement]
-                    }
-                }
-                
-                lock.async(group: group) {
-                    result += [(capturedStepIndex, stepResult)]
-                }
-            }
-            stepIndex += 1
-        }
-        group.wait()
-        
-        //        dispatch_group_wait(group, DispatchTime.distantFuture)
-        
-        return result.sorted { $0.0 < $1.0 }.flatMap { $0.1 }
-    }
-}
-
 
 
 // Basic task demo
@@ -71,6 +21,13 @@ wcTask.standardOutput = wcOutPipe
 
 // NOTE: launch throws an exception on bad input but it is an Objective-C exception. Swift won't catch it
 // see http://stackoverflow.com/questions/32758811/catching-nsexception-in-swift
+
+guard FileManager.default.fileExists(atPath: lsTask.launchPath!) == true else
+{
+    print("BAD")
+    exit(0)
+}
+
 lsTask.launch()
 wcTask.launch()
 
@@ -112,7 +69,6 @@ print("\(Int(q)!)")
 func getItemsFromSystemProfiler(dataTypeString: String) -> Array<NSDictionary>? {
     let task = Process()
 
-    var systemProfilerInfo: Array<NSDictionary>? = nil
 
     task.launchPath = "/usr/sbin/system_profiler"
     task.arguments = ["-xml", dataTypeString]
@@ -135,13 +91,29 @@ func getItemsFromSystemProfiler(dataTypeString: String) -> Array<NSDictionary>? 
         return nil
     }
 
+//    var systemProfilerInfo: Array<NSDictionary>? = nil
+//
+//    if let n = d["_items"] as? NSArray {
+//        systemProfilerInfo = (n as! Array<NSDictionary>) as Array<NSDictionary>?
+//    } else {
+//        systemProfilerInfo = nil
+//    }
+//    return systemProfilerInfo
+    
+    return (d["_items"] as? Array<NSDictionary>)
+    
+}
 
-    if let n = d["_items"] as? NSArray {
-        systemProfilerInfo = (n as! Array<NSDictionary>) as Array<NSDictionary>?
-    } else {
-        systemProfilerInfo = nil
-    }
-    return systemProfilerInfo
+let ni = getItemsFromSystemProfiler(dataTypeString: "SPNetworkDataType")
+
+let inames = (ni ?? []).filter{
+    return $0["ip_address"] != nil
+}
+
+for device in inames {
+    
+    print("\(device["interface"] ?? "NA")")
+    
 }
 
 // NSArray to Array is toll free. NSDictionary to Dictionary is not but that's OK. They work the same.
