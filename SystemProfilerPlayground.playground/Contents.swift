@@ -124,9 +124,7 @@ func getItemsFromSystemProfiler(dataTypeString: String) -> Array<NSDictionary>? 
     task.launch()
 
     let data = pipe.fileHandleForReading.readDataToEndOfFile()
-
-
-    let dict: Any = try? PropertyListSerialization.propertyList(from: data, options: [], format: nil)
+    let dict: AnyObject = try! PropertyListSerialization.propertyList(from: data, options: [], format: nil) as AnyObject
 
 
     guard let a = dict as? NSArray else {
