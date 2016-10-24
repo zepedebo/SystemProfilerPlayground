@@ -9,7 +9,7 @@ public func timeMe(label: String, code :(Void) -> Void ) {
 }
 
 public extension Array {
-    public func pmap<T>(transform: @escaping ((Element) -> T)) -> [T] {
+    public func slowpmap<T>(transform: @escaping ((Element) -> T)) -> [T] {
         guard !self.isEmpty else {
             return []
         }
