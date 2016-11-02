@@ -27,47 +27,49 @@ for line in lines! {
     }
 }
 
+print("\([1,2,3,4,5].reduce(0){(sum, current) in return sum + current})")
 
 
-//
-//// Basic task demo
-//let lsTask = Process()
-//let wcTask = Process()
-//let lsOutPipe = Pipe()
-//let wcOutPipe = Pipe()
-//
-//wcTask.launchPath = "/usr/bin/wc"
-//wcTask.arguments = ["-l"]
-//lsTask.launchPath = "/bin/ls"
-//lsTask.arguments = ["/Users/steveg"]
-//
-//lsTask.standardOutput = lsOutPipe
-//wcTask.standardInput = lsOutPipe
-//wcTask.standardOutput = wcOutPipe
-//
-//// NOTE: launch throws an exception on bad input but it is an Objective-C exception. Swift won't catch it
-//// see http://stackoverflow.com/questions/32758811/catching-nsexception-in-swift
-//
-//guard FileManager.default.fileExists(atPath: lsTask.launchPath!) == true else
-//{
-//    print("BAD")
-//    exit(0)
-//}
-//
-//lsTask.launch()
-//wcTask.launch()
-//
-//
-//lsTask.waitUntilExit()
-//wcTask.waitUntilExit()
-//
-//print("ls terminated with \(lsTask.terminationStatus), wc terminated with \(wcTask.terminationStatus)")
-//
-//let data = wcOutPipe.fileHandleForReading.readDataToEndOfFile()
-//let stringData = String(data: data, encoding: String.Encoding.utf8)
-//
-//print("File count = \(stringData?.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines))")
-//
+
+//let ps = Process()
+//let psStdOut = Pipe()
+//ps.launchPath = "/bin/ps"
+//ps.arguments = ["-A", "-o", "pcpu comm"]
+//ps.standardOutput = psStdOut
+//ps.launch()
+//ps.waitUntilExit()
+//let psData = psStdOut.fileHandleForReading.readDataToEndOfFile()
+//let psText = String(data: psData, encoding: String.Encoding.utf8)
+
+timeMe(label: "Good reduce", code: {reduceExample()})
+
+timeMe(label: "Map then reduce") {
+    let psText = launchAndGetText(path: "/bin/ps", args: ["-A", "-o", "pcpu comm"])
+    var psLines = psText.components(separatedBy: "\n").map{$0.trimmingCharacters(in: .whitespacesAndNewlines)}
+
+    psLines.removeFirst()
+
+    if(psLines.last == "") {
+        psLines.removeLast()
+    }
+    let n = psLines.map(){(line) -> (String, Double) in
+        let firstSplit = line.characters.split(maxSplits: 1, omittingEmptySubsequences: true, whereSeparator: {$0 == " "}).map(String.init)
+        return (firstSplit[1], Double(firstSplit[0])!)
+    }
+
+    let t = n.reduce(("", 0.0)){
+        if($0.1 > $1.1) {
+            return $0
+        } else {
+            return $1
+        }
+    }
+    print(t)
+}
+
+//print(n.sorted(by: {$0.1 > $1.1}).filter{$0.1 > 0.0})
+
+
 //// Dealing with some results
 //let i = Int("  23".trimmingCharacters(in: CharacterSet.whitespacesAndNewlines))
 //let f = Float("10.12")
@@ -92,55 +94,24 @@ for line in lines! {
 //let q = String("2a3a5".characters.filter({$0 >= "0" && $0 <= "9"}))
 //print("\(Int(q)!)")
 //
-//func getItemsFromSystemProfiler(dataTypeString: String) -> Array<NSDictionary>? {
-//    let task = Process()
-//
-//
-//    task.launchPath = "/usr/sbin/system_profiler"
-//    task.arguments = ["-xml", dataTypeString]
-//
-//
-//    let pipe = Pipe()
-//    task.standardOutput = pipe
-//
-//    task.launch()
-//
-//    let data = pipe.fileHandleForReading.readDataToEndOfFile()
-//    let dict: AnyObject = try! PropertyListSerialization.propertyList(from: data, options: [], format: nil) as AnyObject
-//
-//
-//    guard let a = dict as? NSArray else {
-//        return nil
+//let newest = installs?.reduce(result){(newResult, install) in
+//    guard let pkgName = install["_name" ] as? String  else {
+//        return newResult
+//    }
+//    guard let pkgDate = install["install_date"] as? Date else {
+//        return newResult
+//    }
+//    if let currentDate = newResult[pkgName] {
+//        newResult[pkgName] = (pkgDate.compare(currentDate) == ComparisonResult.orderedAscending) ? pkgDate : currentDate
+//    } else {
+//        newResult[pkgName] = pkgDate;
 //    }
 //
-//    guard let d = a[0] as? NSDictionary else {
-//        return nil
-//    }
-//
-////    var systemProfilerInfo: Array<NSDictionary>? = nil
-////
-////    if let n = d["_items"] as? NSArray {
-////        systemProfilerInfo = (n as! Array<NSDictionary>) as Array<NSDictionary>?
-////    } else {
-////        systemProfilerInfo = nil
-////    }
-////    return systemProfilerInfo
-//    
-//    return (d["_items"] as? Array<NSDictionary>)
-//    
+//    return newResult
 //}
-//
-let ni = getItemsFromSystemProfiler(dataTypeString: "SPNetworkDataType")
 
-let inames = (ni ?? []).filter{
-    return $0["ip_address"] != nil
-}
+//print(newest)
 
-for device in inames {
-    
-    print("\(device["interface"] ?? "NA")")
-    
-}
 //
 //// NSArray to Array is toll free. NSDictionary to Dictionary is not but that's OK. They work the same.
 //let d = getItemsFromSystemProfiler(dataTypeString: "SPApplicationsDataType")

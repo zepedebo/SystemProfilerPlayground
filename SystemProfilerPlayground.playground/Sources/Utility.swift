@@ -4,8 +4,7 @@ public func timeMe(label: String, code :(Void) -> Void ) {
     let fortimeAtStart = Date()
     code()
     let forelapsedtime = Date().timeIntervalSince(fortimeAtStart)
-    print("\(label): \(forelapsedtime)")
-    
+    print("\(label): \(forelapsedtime)")    
 }
 
 public extension Array {
@@ -48,5 +47,19 @@ public extension Array {
         
         return result.sorted { $0.0 < $1.0 }.flatMap { $0.1 }
     }
+}
+
+public func launchAndGetText(path: String, args: [String]) -> String {
+    let ps = Process()
+    let psStdOut = Pipe()
+    ps.launchPath = path
+    ps.arguments = args
+    ps.standardOutput = psStdOut
+    ps.launch()
+    ps.waitUntilExit()
+    let psData = psStdOut.fileHandleForReading.readDataToEndOfFile()
+    let psText = String(data: psData, encoding: String.Encoding.utf8)
+    return psText ?? ""
+
 }
 

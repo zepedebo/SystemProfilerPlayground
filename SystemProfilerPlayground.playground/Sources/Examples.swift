@@ -159,8 +159,72 @@ public func filterExample() {
 
 }
 
-public func reduceExample() {
+public func firstInstall() {
+    let installs = getItemsFromSystemProfiler(dataTypeString: "SPInstallHistoryDataType");
+    var result = [String:Date]()
     
+    for install in installs! {
+        if let pkgName = install["_name"] as? String {
+            if let pkgDate = install["install_date"] as? Date {
+                if let currentDate = result[pkgName] {
+                    result[pkgName] = (pkgDate.compare(currentDate) == ComparisonResult.orderedAscending) ? pkgDate : currentDate
+                } else {
+                    result[pkgName] = pkgDate;
+                }
+                
+            }
+        }
+    }    
 }
+
+public func badReduceExample() {
+    let installs = getItemsFromSystemProfiler(dataTypeString: "SPInstallHistoryDataType");
+    let result = [String:Date]()
+    
+    
+    let newest = installs?.reduce(result){(current, install) in
+        var newResult = current
+        guard let pkgName = install["_name" ] as? String  else {
+            return current
+        }
+        guard let pkgDate = install["install_date"] as? Date else {
+            return current
+        }
+        if let currentDate = current[pkgName] {
+            newResult[pkgName] = (pkgDate.compare(currentDate) == ComparisonResult.orderedAscending) ? pkgDate : currentDate
+        } else {
+            newResult[pkgName] = pkgDate;
+        }
+        
+        return newResult
+    }
+}
+
+public func reduceExample() {
+    let psText = launchAndGetText(path: "/bin/ps", args: ["-A", "-o", "pcpu comm"])
+    var psLines = psText.components(separatedBy: "\n").map{$0.trimmingCharacters(in: .whitespacesAndNewlines)}
+    
+    psLines.removeFirst()
+    
+    if(psLines.last == "") {
+        psLines.removeLast()
+    }
+
+    let t = psLines.reduce(("", 0.0)) { (currentHog, potentialHog) -> (String, Double) in
+        let firstSplit = potentialHog.characters.split(maxSplits: 1, omittingEmptySubsequences: true, whereSeparator: {$0 == " "}).map(String.init)
+        
+        if firstSplit.count == 2 {
+            let pHogName = firstSplit[1]
+            if let pHogVal = Double(firstSplit[0]) {
+                if(pHogVal > currentHog.1) {
+                    return (pHogName, pHogVal)
+                }
+            }
+        }
+        return currentHog
+    }
+    print(t)
+}
+
 
 
