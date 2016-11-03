@@ -1,7 +1,7 @@
 import Foundation
 
 // Simplest
-public func Simple() {
+public func simpleProcess() {
     let lsProc = Process()
     let lsStdout = Pipe()
     lsProc.launchPath = "/bin/ls"
@@ -10,10 +10,10 @@ public func Simple() {
     lsProc.waitUntilExit()
     let lsResultData = lsStdout.fileHandleForReading.readDataToEndOfFile();
     let lsResultText = String(data: lsResultData, encoding: String.Encoding.utf8)
-    print(lsResultText)
+    print(lsResultText ?? "No results")
 }
 
-public func Pipes() {
+public func processWithPipes() {
     let lsTask = Process()
     let wcTask = Process()
     let lsOutPipe = Pipe()
@@ -53,7 +53,7 @@ public func Pipes() {
     
 }
 
-public func GetUUIDPlainText() {
+public func getUUIDPlainText() {
     let spProc = Process()
     
     spProc.launchPath = "/usr/sbin/system_profiler"
@@ -78,7 +78,7 @@ public func GetUUIDPlainText() {
     }    
 }
 
-public func GetUUIDXml() {
+public func getUUIDXml() {
     let spProc = Process()
     
     spProc.launchPath = "/usr/sbin/system_profiler"
@@ -140,8 +140,104 @@ public func getItemsFromSystemProfiler(dataTypeString: String) -> Array<NSDictio
 
 }
 
-public func mapExample() {
+public func optionalExample() {
+    let a = Double("3.5n")
+    let m = Mirror(reflecting: a)
+    print(m.subjectType)
     
+    if a != nil {
+        print(a!)
+    } else {
+        print("Nope")
+    }
+    
+    if let aNum = a {
+        print(aNum)
+    } else {
+        print("Nope")
+    }
+
+}
+
+public func lambdaSyntax() {
+    let add1 = {(a: Int) -> Int in return a + 1}
+    let add2 = {a in return a + 2}
+    let add3 = {$0 + 3}
+    
+    print(add1(10))
+    print(add2(10))
+    print(add3(10))
+
+}
+
+// Map Journey
+
+public func traditionalForLoop() {
+    if let d = getItemsFromSystemProfiler(dataTypeString: "SPApplicationsDataType") {
+        timeMe(label: "Traditional for loop"){
+            var fora = [String?](repeating: nil, count: d.count)
+            
+            for n in 0..<(d.count) {
+                if case let path as String = d[n]["path"] {
+                    if let b = Bundle(path: path) {
+                        fora[n] = b.bundleIdentifier
+                    }
+                }
+            }
+        }
+    }
+}
+
+public func forInLoop() {
+    if let d = getItemsFromSystemProfiler(dataTypeString: "SPApplicationsDataType") {
+
+        timeMe(label: "For in loop") {
+            var fora = [String?]()
+            for appInfo in d {
+                var id: String? = nil
+                if case let path as String = appInfo["path"] {
+                    if let b = Bundle(path: path) {
+                        id = b.bundleIdentifier
+                    }
+                }
+                fora.append(id)
+            }
+            print(fora.count)
+        }
+    }
+}
+
+public func enumeratedForIn() {
+    if let d = getItemsFromSystemProfiler(dataTypeString: "SPApplicationsDataType") {
+        timeMe(label: "Enumerated for loop pre allocated") {
+            var fora = [String?](repeating: nil, count: d.count)
+            for (n, appInfo) in d.enumerated() {
+                if case let path as String = appInfo["path"] {
+                    if let b = Bundle(path: path) {
+                        fora[n] = b.bundleIdentifier
+                    }
+                }
+            }
+            print(fora.count)
+        }
+    }
+}
+
+public func mapExample() {
+    if let d = getItemsFromSystemProfiler(dataTypeString: "SPApplicationsDataType") {
+        var mapa: [String?] = []
+        timeMe(label: "Map") {
+            mapa = d.pmap{(appInfo) -> String? in
+                if case let path as String = appInfo["path"] {
+                    if let b = Bundle(path: path) {
+                        return b.bundleIdentifier
+                    }
+                }
+                return nil
+            }
+            print(mapa.count)
+        }
+    }
 }
 
 public func filterExample() {
@@ -198,6 +294,7 @@ public func badReduceExample() {
         
         return newResult
     }
+    print(newest ?? "No results")
 }
 
 public func reduceExample() {
@@ -224,6 +321,32 @@ public func reduceExample() {
         return currentHog
     }
     print(t)
+}
+
+public func mapThenReduce() {
+    let psText = launchAndGetText(path: "/bin/ps", args: ["-A", "-o", "pcpu comm"])
+    var psLines = psText.components(separatedBy: "\n").map{$0.trimmingCharacters(in: .whitespacesAndNewlines)}
+    
+    psLines.removeFirst()
+    
+    if(psLines.last == "") {
+        psLines.removeLast()
+    }
+    let n = psLines.map(){(line) -> (String, Double) in
+        let firstSplit = line.characters.split(maxSplits: 1, omittingEmptySubsequences: true, whereSeparator: {$0 == " "}).map(String.init)
+        return (firstSplit[1], Double(firstSplit[0])!)
+    }
+    
+    let t = n.reduce(("", 0.0)){
+        if($0.1 > $1.1) {
+            return $0
+        } else {
+            return $1
+        }
+    }
+    print(t)
+    print(n.sorted(by: {$0.1 > $1.1}).filter{$0.1 > 0.0})
+
 }
 
 
