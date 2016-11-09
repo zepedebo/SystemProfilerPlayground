@@ -2,63 +2,7 @@
 
 import Cocoa
 
-//Simple()
 
-if let d = getItemsFromSystemProfiler(dataTypeString: "SPApplicationsDataType") {
-
-
-    timeMe(label: "Traditional for loop"){
-        var fora = [String?](repeating: nil, count: d.count)
-
-        for n in 0..<(d.count) {
-            if case let path as String = d[n]["path"] {
-                if let b = Bundle(path: path) {
-                    fora[n] = b.bundleIdentifier
-                }
-            }
-        }
-        print(fora.count)
-    }
-    
-    
-    
-    timeMe(label: "Enumerated for loop pre allocated") {
-        var fora = [String?](repeating: nil, count: d.count)
-        for (n, appInfo) in d.enumerated() {
-              if case let path as String = appInfo["path"] {
-                if let b = Bundle(path: path) {
-                    fora[n] = b.bundleIdentifier
-                }
-            }
-        }
-        print(fora.count)
-    }
-    
-    var mapa: [String?] = []
-    timeMe(label: "Map") {
-        mapa = d.pmap{(appInfo) -> String? in
-            if case let path as String = appInfo["path"] {
-                if let b = Bundle(path: path) {
-                    return b.bundleIdentifier
-                }
-            }
-            return nil
-        }
-        print(mapa.count)
-    }
-}
-
-
-
-//let ps = Process()
-//let psStdOut = Pipe()
-//ps.launchPath = "/bin/ps"
-//ps.arguments = ["-A", "-o", "pcpu comm"]
-//ps.standardOutput = psStdOut
-//ps.launch()
-//ps.waitUntilExit()
-//let psData = psStdOut.fileHandleForReading.readDataToEndOfFile()
-//let psText = String(data: psData, encoding: String.Encoding.utf8)
 
 
 //

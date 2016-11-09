@@ -78,6 +78,15 @@ public func getUUIDPlainText() {
     }    
 }
 
+public func substring() {
+    let h = "Hello World"
+    let n = h.characters.index(of: " ")
+    let s = h.index(h.startIndex, offsetBy: 3)
+    let e = h.index(h.endIndex, offsetBy: -2)
+    h[s..<e]
+    h[s..<n!]
+}
+
 public func getUUIDXml() {
     let spProc = Process()
     
