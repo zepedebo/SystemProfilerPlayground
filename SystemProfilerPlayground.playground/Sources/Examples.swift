@@ -14,39 +14,38 @@ public func simpleProcess() {
 }
 
 public func processWithPipes() {
-    let lsTask = Process()
-    let wcTask = Process()
-    let lsOutPipe = Pipe()
-    let wcOutPipe = Pipe()
-    
-    wcTask.launchPath = "/usr/bin/wc"
-    wcTask.arguments = ["-l"]
-    lsTask.launchPath = "/bin/ls"
-    lsTask.arguments = ["/Users/steveg"]
-    
-    lsTask.standardOutput = lsOutPipe
-    wcTask.standardInput = lsOutPipe
-    wcTask.standardOutput = wcOutPipe
+    let lsProc = Process()
+    let lsStdout = Pipe()
+    lsProc.launchPath = "/bin/ls"
+    lsProc.standardOutput = lsStdout
+
+
+    let wcProc = Process()
+    let wcStdout = Pipe()
+    wcProc.launchPath = "/usr/bin/wc"
+    wcProc.arguments = ["-l"]
+    wcProc.standardInput = lsStdout
+    wcProc.standardOutput = wcStdout
     
     // NOTE: launch throws an exception on bad input but it is an Objective-C exception. Swift won't catch it
     // see http://stackoverflow.com/questions/32758811/catching-nsexception-in-swift
     
-    guard FileManager.default.fileExists(atPath: lsTask.launchPath!) && FileManager.default.fileExists(atPath: wcTask.launchPath!) else
+    guard FileManager.default.fileExists(atPath: lsProc.launchPath!) && FileManager.default.fileExists(atPath: wcProc.launchPath!) else
     {
         print("Missing executable")
         exit(0)
     }
     
-    lsTask.launch()
-    wcTask.launch()
+    lsProc.launch()
+    wcProc.launch()
     
     
-    lsTask.waitUntilExit()
-    wcTask.waitUntilExit()
+    lsProc.waitUntilExit()
+    wcProc.waitUntilExit()
     
-    print("ls terminated with \(lsTask.terminationStatus), wc terminated with \(wcTask.terminationStatus)")
+    print("ls terminated with \(lsProc.terminationStatus), wc terminated with \(wcProc.terminationStatus)")
     
-    let data = wcOutPipe.fileHandleForReading.readDataToEndOfFile()
+    let data = wcStdout.fileHandleForReading.readDataToEndOfFile()
     let stringData = String(data: data, encoding: String.Encoding.utf8)
     
     print("File count = \(stringData?.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines))")
@@ -111,42 +110,33 @@ public func getUUIDXml() {
     }
 }
 
-public func getItemsFromSystemProfiler(dataTypeString: String) -> Array<NSDictionary>? {
+public func getItemsFromSystemProfiler(dataTypeString: String) -> Array<Dictionary<String, AnyObject>>? {
     let task = Process()
-
-
+    
+    
     task.launchPath = "/usr/sbin/system_profiler"
     task.arguments = ["-xml", dataTypeString]
-
-
+    
+    
     let pipe = Pipe()
     task.standardOutput = pipe
-
+    
     task.launch()
-
+    
     let data = pipe.fileHandleForReading.readDataToEndOfFile()
     let dict: AnyObject = try! PropertyListSerialization.propertyList(from: data, options: [], format: nil) as AnyObject
-
-
-    guard let a = dict as? NSArray else {
+    
+    
+    guard let a = dict as? Array<AnyObject> else {
         return nil
     }
-
-    guard let d = a[0] as? NSDictionary else {
+    
+    guard let d = a[0] as? Dictionary<String, AnyObject> else {
         return nil
     }
-
-//    var systemProfilerInfo: Array<NSDictionary>? = nil
-//
-//    if let n = d["_items"] as? NSArray {
-//        systemProfilerInfo = (n as! Array<NSDictionary>) as Array<NSDictionary>?
-//    } else {
-//        systemProfilerInfo = nil
-//    }
-//    return systemProfilerInfo
-
-    return (d["_items"] as? Array<NSDictionary>)
-
+    
+    return (d["_items"] as? Array<Dictionary<String, AnyObject>>)
+    
 }
 
 public func optionalExample() {
@@ -258,7 +248,7 @@ public func filterExample() {
     
     for device in inames {
         
-        print("\(device["interface"] ?? "NA")")
+        print("\((device["interface"] as? String) ?? "NA")")
         
     }
 
