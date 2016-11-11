@@ -1,4 +1,4 @@
-//: Playground - noun: a place where people can play
+//: Running system tools with Swift
 
 import Cocoa
 
@@ -28,20 +28,19 @@ import Cocoa
 
 
 
-////////////////////////////////
-//// Extended Process Example //
-////////////////////////////////
-//
+
+//: Extended Process Example
+//: NOTE: launch throws an exception on bad input but it is an Objective-C exception. Swift won't catch it.
+//: See [this blog post](http://stackoverflow.com/questions/32758811/catching-nsexception-in-swift)
+
+
 //let wcProc = Process()
 //let wcStdout = Pipe()
 //wcProc.launchPath = "/usr/bin/wc"
 //wcProc.arguments = ["-l"]
 //wcProc.standardInput = lsStdout
 //wcProc.standardOutput = wcStdout
-//
-//// NOTE: launch throws an exception on bad input but it is an Objective-C exception. Swift won't catch it
-//// see http://stackoverflow.com/questions/32758811/catching-nsexception-in-swift
-//
+
 //guard FileManager.default.fileExists(atPath: lsProc.launchPath!) && FileManager.default.fileExists(atPath: wcProc.launchPath!) else
 //{
 //    print("Missing executable")
@@ -88,10 +87,9 @@ import Cocoa
 
 
 
-//----------------------------------------------------------------------
-///////////////////////////////////
-//// Hardware UUID example start //
-///////////////////////////////////
+
+//: Hardware UUID example start
+
 //let spProc = Process()
 //
 //spProc.launchPath = "/usr/sbin/system_profiler"
@@ -191,9 +189,7 @@ import Cocoa
 ////    }
 //}
 
-/////////////////////
-//// Lambda Syntax //
-/////////////////////
+//: Lambda Syntax
 //let add1 = {(a: Int) -> Int in return a + 1}
 //let add2 = {a in return a + 2}
 //let add3 = {$0 + 3}
@@ -218,10 +214,7 @@ import Cocoa
 //    
 //}
 
-//////////////////////////
-//// Bad Reduce Example //
-//////////////////////////
-
+//: Bad Reduce Example
 //let installs = getItemsFromSystemProfiler(dataTypeString: "SPInstallHistoryDataType");
 //let result = [String:Date]()
 //

@@ -1,6 +1,6 @@
 import Foundation
 
-// Simplest
+//: Simplest
 public func simpleProcess() {
     let lsProc = Process()
     let lsStdout = Pipe()
