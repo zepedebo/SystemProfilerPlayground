@@ -1,66 +1,12 @@
-//: Running system tools with Swift
-
-import Cocoa
+// Running system tools with Swift
 
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//: Extended Process Example
-//: NOTE: launch throws an exception on bad input but it is an Objective-C exception. Swift won't catch it.
-//: See [this blog post](http://stackoverflow.com/questions/32758811/catching-nsexception-in-swift)
-
-
-//let wcProc = Process()
-//let wcStdout = Pipe()
-//wcProc.launchPath = "/usr/bin/wc"
-//wcProc.arguments = ["-l"]
-//wcProc.standardInput = lsStdout
-//wcProc.standardOutput = wcStdout
-
-//guard FileManager.default.fileExists(atPath: lsProc.launchPath!) && FileManager.default.fileExists(atPath: wcProc.launchPath!) else
-//{
-//    print("Missing executable")
-//    exit(0)
-//}
-//
-//lsProc.launch()
-//wcProc.launch()
-//
-//
-//lsProc.waitUntilExit()
-//wcProc.waitUntilExit()
-//
-//print("ls terminated with \(lsProc.terminationStatus), wc terminated with \(wcProc.terminationStatus)")
-//
-//let data = wcStdout.fileHandleForReading.readDataToEndOfFile()
-//let stringData = String(data: data, encoding: String.Encoding.utf8)
-//
-//print("File count = \(stringData?.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines))")
-
+// Process Example
+// NOTE: launch throws an exception on bad input but it is an Objective-C exception. Swift won't catch it.
+// See [this blog post](http://stackoverflow.com/questions/32758811/catching-nsexception-in-swift)
 
 
 

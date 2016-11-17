@@ -226,7 +226,7 @@ public func mapExample() {
     if let d = getItemsFromSystemProfiler(dataTypeString: "SPApplicationsDataType") {
         var mapa: [String?] = []
         timeMe(label: "Map") {
-            mapa = d.pmap{(appInfo) -> String? in
+            mapa = d.map{(appInfo) -> String? in
                 if case let path as String = appInfo["path"] {
                     if let b = Bundle(path: path) {
                         return b.bundleIdentifier

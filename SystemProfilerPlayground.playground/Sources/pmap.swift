@@ -35,9 +35,9 @@ public extension Array {
         for (i, slice) in workSlices.enumerated() {
             DispatchQueue.global().async(group: group) {
                 let t = (slice.startIndex, slice.map(transform))
-                //                lock.async(group:group) {
-                result[i] = t
-                //                }
+                DispatchQueue.global().sync {
+                    result[i] = t
+                }
             }
         }
         group.wait()
