@@ -1,40 +1,18 @@
 // Running system tools with Swift
 
+import Foundation
 
 
-
-
-// Process Example
-// NOTE: launch throws an exception on bad input but it is an Objective-C exception. Swift won't catch it.
-// See [this blog post](http://stackoverflow.com/questions/32758811/catching-nsexception-in-swift)
-
-
-
-
+// Map + Filter + reduce
+let n1 = [1, 2, 3, 4 ].map{(a: Int) in a*3}.filter{$0 % 2 == 0}.reduce(0){ $0+$1}
+let n2 = [1, 2, 3, 4 ].map{$0*3}.filter{$0 % 2 == 0}.reduce(0){ $0+$1}
 
 
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//: Hardware UUID example start
+// Hardware UUID example start
 
 //let spProc = Process()
 //
@@ -135,7 +113,7 @@
 ////    }
 //}
 
-//: Lambda Syntax
+// Lambda Syntax
 //let add1 = {(a: Int) -> Int in return a + 1}
 //let add2 = {a in return a + 2}
 //let add3 = {$0 + 3}

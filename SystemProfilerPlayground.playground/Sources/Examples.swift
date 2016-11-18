@@ -137,6 +137,12 @@ public func getItemsFromSystemProfiler(dataTypeString: String) -> Array<Dictiona
     
     return (d["_items"] as? Array<Dictionary<String, AnyObject>>)
     
+//    let spResult = try? PropertyListSerialization.propertyList(from: spData, options: [], format: nil) as? [Dictionary<String, Any?>]
+//    
+//    if let stuff = spResult??[0]["_items"] {
+//        return(stuff)
+//    }
+//    return nil
 }
 
 public func optionalExample() {

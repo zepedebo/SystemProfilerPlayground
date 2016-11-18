@@ -1,5 +1,8 @@
 import Foundation
 
+
+// Based on code from http://moreindirection.blogspot.com/2015/07/gcd-and-parallel-collections-in-swift.html
+
 func slices<T>(_ a: [T], size: Int) -> [ArraySlice<T>] {
     let sliceCount: Int = Int(ceil(Double(a.count)/Double(size)))
     var result = [ArraySlice<T>](repeating: [], count: sliceCount)
@@ -31,11 +34,11 @@ public extension Array {
         
         let group = DispatchGroup()
         //        let lock = DispatchQueue(label:"pmap queue for result" )
-        
+        let assemblyQueue = DispatchQueue(label: "com.mt.assembly")
         for (i, slice) in workSlices.enumerated() {
             DispatchQueue.global().async(group: group) {
                 let t = (slice.startIndex, slice.map(transform))
-                DispatchQueue.global().sync {
+                assemblyQueue.sync {
                     result[i] = t
                 }
             }
