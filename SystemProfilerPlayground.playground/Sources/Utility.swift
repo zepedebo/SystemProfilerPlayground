@@ -3,7 +3,8 @@ import Foundation
 public func timeMe(label: String, code :(Void) -> Void ) {
     let fortimeAtStart = Date()
     code()
-    let forelapsedtime = Date().timeIntervalSince(fortimeAtStart)
+    let forelapsedtime = Date()
+        .timeIntervalSince(fortimeAtStart)
     print("\(label): \(forelapsedtime)")    
 }
 

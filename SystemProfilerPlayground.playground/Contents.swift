@@ -5,32 +5,35 @@ import Foundation
 
 // Map + Filter + reduce
 let n1 = [1, 2, 3, 4 ].map{(a: Int) in a*3}.filter{$0 % 2 == 0}.reduce(0){ $0+$1}
+//print(n1)
 let n2 = [1, 2, 3, 4 ].map{$0*3}.filter{$0 % 2 == 0}.reduce(0){ $0+$1}
 
+//let p = getItemsFromSystemProfiler(dataTypeString: "SPConfigurationProfileDataType")
+
+//for n in p {
+//    print (n)
+//}
+
+if let p = getItemsFromSystemProfiler(dataTypeString: "SPConfigurationProfileDataType") {
+    for i in p {
+        print(i["_name"] ?? "Something is very wrong")
+        
+        if let i2 = i["_items"] as? [[NSString: AnyObject]] {
+            for q in i2 {
+                let m = Mirror(reflecting: q)
+                print (m)
+                for (key, val) in q {
+                    print("key = \(key), val = \(val)")
+                }
+            }
+        }
+    }
+} else {
+    print("bad p")
+}
 
 
 
-
-
-// Hardware UUID example start
-
-//let spProc = Process()
-//
-//spProc.launchPath = "/usr/sbin/system_profiler"
-//spProc.arguments = ["SPHardwareDataType"]
-//
-//let pipe = Pipe()
-//spProc.standardOutput = pipe
-//
-//spProc.launch()
-//spProc.waitUntilExit()
-//
-//let spData = pipe.fileHandleForReading.readDataToEndOfFile()
-//let spText = String(data:spData, encoding: String.Encoding.utf8)
-
-//// Find the UUID
-
-//// Convert to XML
 
 
 //public func getItemsFromSystemProfiler2(dataTypeString: String) -> Array<Dictionary<String, AnyObject>>? {

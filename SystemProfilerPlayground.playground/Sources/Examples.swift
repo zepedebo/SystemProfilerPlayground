@@ -5,11 +5,16 @@ public func simpleProcess() {
     let lsProc = Process()
     let lsStdout = Pipe()
     lsProc.launchPath = "/bin/ls"
+    lsProc.arguments = ["-l"]
     lsProc.standardOutput = lsStdout
+    
     lsProc.launch()
     lsProc.waitUntilExit()
-    let lsResultData = lsStdout.fileHandleForReading.readDataToEndOfFile();
-    let lsResultText = String(data: lsResultData, encoding: String.Encoding.utf8)
+    let lsResultData = lsStdout
+        .fileHandleForReading
+        .readDataToEndOfFile();
+    let lsResultText = String(data: lsResultData,
+                              encoding: String.Encoding.utf8)
     print(lsResultText ?? "No results")
 }
 
@@ -48,7 +53,7 @@ public func processWithPipes() {
     let data = wcStdout.fileHandleForReading.readDataToEndOfFile()
     let stringData = String(data: data, encoding: String.Encoding.utf8)
     
-    print("File count = \(stringData?.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines))")
+    print("File count = \(stringData?.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines) ?? "none found")")
     
 }
 
@@ -88,20 +93,20 @@ public func substring() {
 
 public func getUUIDXml() {
     let spProc = Process()
+    let pipe = Pipe()
     
     spProc.launchPath = "/usr/sbin/system_profiler"
     spProc.arguments = ["-xml", "SPHardwareDataType"]
     
-    let pipe = Pipe()
     spProc.standardOutput = pipe
     
     spProc.launch()
     spProc.waitUntilExit()
     
     let spData = pipe.fileHandleForReading.readDataToEndOfFile()
-    let dict: AnyObject? = try? PropertyListSerialization.propertyList(from: spData, options: [], format: nil) as AnyObject
+    let dict: AnyObject? = try? PropertyListSerialization
+        .propertyList(from: spData, options: [], format: nil) as AnyObject
     
-    //let a = dict as! NSArray
     let hardwareInfo = (dict as! NSArray)[0] as! NSDictionary
     
     let items = (hardwareInfo["_items"] as! NSArray)[0]
@@ -110,13 +115,11 @@ public func getUUIDXml() {
     }
 }
 
-public func getItemsFromSystemProfiler(dataTypeString: String) -> Array<Dictionary<String, AnyObject>>? {
+public func getItemsFromSystemProfiler(dataTypeString: String) -> [[String: AnyObject]]? {
     let task = Process()
-    
     
     task.launchPath = "/usr/sbin/system_profiler"
     task.arguments = ["-xml", dataTypeString]
-    
     
     let pipe = Pipe()
     task.standardOutput = pipe
@@ -124,30 +127,24 @@ public func getItemsFromSystemProfiler(dataTypeString: String) -> Array<Dictiona
     task.launch()
     
     let data = pipe.fileHandleForReading.readDataToEndOfFile()
-    let dict: AnyObject = try! PropertyListSerialization.propertyList(from: data, options: [], format: nil) as AnyObject
+    let dict: AnyObject = try! PropertyListSerialization.propertyList(from: data,
+                                                                      options: [],
+                                                                      format: nil) as AnyObject
     
-    
-    guard let a = dict as? Array<AnyObject> else {
+    guard let a = dict as? [AnyObject] else {
         return nil
     }
     
-    guard let d = a[0] as? Dictionary<String, AnyObject> else {
+    guard let d = a[0] as? [String: AnyObject] else {
         return nil
     }
     
-    return (d["_items"] as? Array<Dictionary<String, AnyObject>>)
-    
-//    let spResult = try? PropertyListSerialization.propertyList(from: spData, options: [], format: nil) as? [Dictionary<String, Any?>]
-//    
-//    if let stuff = spResult??[0]["_items"] {
-//        return(stuff)
-//    }
-//    return nil
+    return (d["_items"] as? [[String: AnyObject]])
 }
 
 public func optionalExample() {
     let a = Double("3.5n")
-    let m = Mirror(reflecting: a)
+    let m = Mirror(reflecting: a as Any)
     print(m.subjectType)
     
     if a != nil {
@@ -165,6 +162,9 @@ public func optionalExample() {
 }
 
 public func lambdaSyntax() {
+    func add(a: Int) -> Int {
+        return a + 1
+    }
     let add1 = {(a: Int) -> Int in return a + 1}
     let add2 = {a in return a + 2}
     let add3 = {$0 + 3}
