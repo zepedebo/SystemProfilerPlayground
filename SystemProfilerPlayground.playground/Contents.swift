@@ -8,34 +8,6 @@ let n1 = [1, 2, 3, 4 ].map{(a: Int) in a*3}.filter{$0 % 2 == 0}.reduce(0){ $0+$1
 //print(n1)
 let n2 = [1, 2, 3, 4 ].map{$0*3}.filter{$0 % 2 == 0}.reduce(0){ $0+$1}
 
-//let p = getItemsFromSystemProfiler(dataTypeString: "SPConfigurationProfileDataType")
-
-//for n in p {
-//    print (n)
-//}
-
-if let p = getItemsFromSystemProfiler(dataTypeString: "SPConfigurationProfileDataType") {
-    for i in p {
-        print(i["_name"] ?? "Something is very wrong")
-        
-        if let i2 = i["_items"] as? [[NSString: AnyObject]] {
-            for q in i2 {
-                let m = Mirror(reflecting: q)
-                print (m)
-                for (key, val) in q {
-                    print("key = \(key), val = \(val)")
-                }
-            }
-        }
-    }
-} else {
-    print("bad p")
-}
-
-
-
-
-
 //public func getItemsFromSystemProfiler2(dataTypeString: String) -> Array<Dictionary<String, AnyObject>>? {
 //    let task = Process()
 //    
@@ -64,6 +36,16 @@ if let p = getItemsFromSystemProfiler(dataTypeString: "SPConfigurationProfileDat
 //    return (d["_items"] as? Array<Dictionary<String, AnyObject>>)
 //    
 //}
+
+// Lambda Syntax
+//let incLong = {(a: Int) -> Int in return a + 1}
+//let incShorter = {a in return a + 1}
+//let incShortest = {$0 + 1}
+//
+//print(incLong(10))
+//print(incShorter(10))
+//print(incShortest(10))
+
 
 //if let d = getItemsFromSystemProfiler(dataTypeString: "SPApplicationsDataType") {
 //    
@@ -105,7 +87,7 @@ if let p = getItemsFromSystemProfiler(dataTypeString: "SPConfigurationProfileDat
 ////    
 ////    var mapa: [String?] = []
 ////    timeMe(label: "Map") {
-////        mapa = d.pmap{(appInfo) -> String? in
+////        mapa = d.map{(appInfo) -> String? in
 ////            if case let path as String = appInfo["path"] {
 ////                if let b = Bundle(path: path) {
 ////                    return b.bundleIdentifier
@@ -115,15 +97,6 @@ if let p = getItemsFromSystemProfiler(dataTypeString: "SPConfigurationProfileDat
 ////        }
 ////    }
 //}
-
-// Lambda Syntax
-//let add1 = {(a: Int) -> Int in return a + 1}
-//let add2 = {a in return a + 2}
-//let add3 = {$0 + 3}
-//
-//print(add1(10))
-//print(add2(10))
-//print(add3(10))
 
 //////////////////////
 //// Filter Example //
@@ -169,6 +142,7 @@ if let p = getItemsFromSystemProfiler(dataTypeString: "SPConfigurationProfileDat
 //// Good Reduce Example //
 ///////////////////////////
 
+// /bin/ps -A -o "pcpu comm"
 
 //let psText = launchAndGetText(path: "/bin/ps", args: ["-A", "-o", "pcpu comm"])
 //var psLines = psText.components(separatedBy: "\n").map{$0.trimmingCharacters(in: .whitespacesAndNewlines)}
@@ -194,3 +168,27 @@ if let p = getItemsFromSystemProfiler(dataTypeString: "SPConfigurationProfileDat
 //}
 //print(t)
 //
+
+//let p = getItemsFromSystemProfiler(dataTypeString: "SPConfigurationProfileDataType")
+
+//for n in p {
+//    print (n)
+//}
+
+//if let p = getItemsFromSystemProfiler(dataTypeString: "SPConfigurationProfileDataType") {
+//    for i in p {
+//        print(i["_name"] ?? "Something is very wrong")
+//
+//        if let i2 = i["_items"] as? [[NSString: AnyObject]] {
+//            for q in i2 {
+//                let m = Mirror(reflecting: q)
+//                print (m)
+//                for (key, val) in q {
+//                    print("key = \(key), val = \(val)")
+//                }
+//            }
+//        }
+//    }
+//} else {
+//    print("bad p")
+//}
