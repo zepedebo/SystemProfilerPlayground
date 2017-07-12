@@ -72,14 +72,14 @@ public func getUUIDPlainText() {
     let spData = pipe.fileHandleForReading.readDataToEndOfFile()
     let spText = String(data:spData, encoding: String.Encoding.utf8)
     
-    let lines = spText?.components(separatedBy: "\n")
-    
-    for line in lines! {
-        let parts = line.components(separatedBy: ":")
-        if parts.count > 1 && parts[0].contains("Hardware UUID") {
-            print(parts[1])
+    if let lines = spText?.components(separatedBy: "\n") {    
+        for line in lines {
+            let parts = line.components(separatedBy: ":")
+            if parts.count > 1 && parts[0].contains("Hardware UUID") {
+                print(parts[1])
+            }
         }
-    }    
+    }
 }
 
 public func substring() {
