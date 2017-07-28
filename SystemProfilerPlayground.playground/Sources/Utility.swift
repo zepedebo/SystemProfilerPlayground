@@ -1,6 +1,6 @@
 import Foundation
 
-public func timeMe(label: String, code :(Void) -> Void ) {
+public func timeMe(label: String, code :() -> Void ) {
     let fortimeAtStart = Date()
     code()
     let forelapsedtime = Date()
